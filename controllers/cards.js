@@ -13,7 +13,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -28,7 +28,7 @@ module.exports.getCards = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -37,12 +37,17 @@ module.exports.getCards = (req, res) => {
 
 module.exports.getCard = (req, res) => {
   Card.findById(req.params.cardid)
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -52,12 +57,17 @@ module.exports.getCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -70,12 +80,17 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -88,12 +103,17 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }

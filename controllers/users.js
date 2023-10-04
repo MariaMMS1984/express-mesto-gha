@@ -31,22 +31,18 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params.userId)
+  User.findById(req.params.userid)
     .then((user) => {
-      if (user) res.send(user);
-      else {
-        res.status(404).send({
-          message: 'Нет пользователя с таким id',
-        });
+      if (!user) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
       }
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFoundError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -66,7 +62,7 @@ module.exports.updateAvatar = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные аватара пользователя' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -86,7 +82,7 @@ module.exports.updateProfile = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные профиля пользователя' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
