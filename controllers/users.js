@@ -33,7 +33,7 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (user) res.status(200).send({ data: user });
+      if (user) res.send(user);
       else {
         res.status(404).send({
           message: 'Нет пользователя с таким id',
