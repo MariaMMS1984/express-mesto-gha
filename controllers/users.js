@@ -8,7 +8,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
@@ -21,12 +21,8 @@ module.exports.createUser = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
-      }
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -55,7 +51,7 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { avatar },
-    { new: true },
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
