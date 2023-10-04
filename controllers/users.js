@@ -11,9 +11,7 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFoundError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -25,9 +23,7 @@ module.exports.getUsers = (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFoundError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -41,7 +37,7 @@ module.exports.getUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.  или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
@@ -60,7 +56,7 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные аватара пользователя' });
-      } else if (err.name === 'NotFoundError') {
+      } else if (err.name === 'CastError') {
         res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
@@ -80,7 +76,7 @@ module.exports.updateProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные профиля пользователя' });
-      } else if (err.name === 'NotFoundError') {
+      } else if (err.name === 'CastError') {
         res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
