@@ -31,13 +31,22 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params.userid)
-    .then((user) => res.send(user))
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (user) res.status(200).send({ data: user });
+      else {
+        res.status(404).send({
+          message: 'Нет пользователя с таким id',
+        });
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.  или был запрошен несуществующий роут' });
+        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+      } else if (err.name === 'NotFoundError') {
+        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
       }
