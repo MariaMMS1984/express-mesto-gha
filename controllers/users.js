@@ -57,7 +57,12 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     { new: true },
   )
-    .then((user) => res.send(user))
+    .then((user) => {
+      if (!user) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные аватара пользователя' });
@@ -77,7 +82,12 @@ module.exports.updateProfile = (req, res) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .then((user) => res.send(user))
+    .then((user) => {
+      if (!user) {
+        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+      }
+      return res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные профиля пользователя' });
