@@ -40,7 +40,7 @@ module.exports.getUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFoundError') {
+      } else if (err.name === 'CastError') {
         res.status(NOTFOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден или был запрошен несуществующий роут' });
       } else {
         res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
