@@ -24,8 +24,8 @@ module.exports.getCards = (req, res) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.send(cards))
-    .catch(() => {
-      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+    .catch((error) => {
+      error.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
