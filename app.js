@@ -6,8 +6,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { errors } = require('celebrate');
-const { validateCreateUser } = require('./middlewares/validate');
+const { celebrate, Joi } = require('celebrate');
 
 app.use(cookieParser());
 const auth = require('./middlewares/auth');
@@ -24,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signin', login);
-app.post('/signup', validateCreateUser, createUser);
+app.post('/signup', createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
 
@@ -41,7 +40,6 @@ app.use((err, req, res, next) => {
         : message,
     });
 });
-app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
