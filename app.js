@@ -6,6 +6,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 
 app.use(cookieParser());
 const auth = require('./middlewares/auth');
@@ -39,6 +40,7 @@ app.use((err, req, res, next) => {
         : message,
     });
 });
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
