@@ -5,7 +5,7 @@ const User = require('../models/user');
 const ErrorBadRequest = require('../errors/incorrect');
 const ErrorNotFound = require('../errors/notfound');
 const UnauthorizedError = require('../errors/autharization');
-
+const ErrorConflict = require('../errors/repeat');
 
 const JWT_SECRET = 'secret';
 
@@ -159,7 +159,15 @@ module.exports.login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация.' });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неверные данные для входа'));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ErrorBadRequest('Переданы некорректные данные'));
+      } else if (err.name === 'CastError') {
+        next(new ErrorBadRequest('Переданы некорректные данные'));
+      } else if (err.name === 'Unauthorized') {
+        next(new UnauthorizedError('Неверные данные для входа'));
+      } else {
+        next(err);
+      }
     });
 };
