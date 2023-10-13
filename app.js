@@ -6,7 +6,8 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
+const { validateCreateUser, validateLogin } = require('./middlewares/validate');
 
 app.use(cookieParser());
 const auth = require('./middlewares/auth');
@@ -22,8 +23,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateCreateUser, createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
 
@@ -40,6 +41,7 @@ app.use((err, req, res, next) => {
         : message,
     });
 });
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
