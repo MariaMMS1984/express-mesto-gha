@@ -94,7 +94,7 @@ const getUser = (req, res, next) => {
 };
 
 const getThisUser = (req, res, next) => {
-  User.findById(req.user.payload)
+  User.findById(req.user._id)
     .then((user) => res.send(user))
     .catch(next);
 };
@@ -102,7 +102,7 @@ const getThisUser = (req, res, next) => {
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    req.user.payload,
+    req.user._id,
     { name, about },
     {
       new: true,
@@ -125,7 +125,7 @@ const updateProfile = (req, res, next) => {
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    req.user.payload,
+    req.user._id,
     { avatar },
     {
       new: true,
