@@ -9,6 +9,11 @@ const ErrorConflict = require('../errors/repeat');
 
 const JWT_SECRET = 'secret';
 
+const getJwtToken = (id) => {
+  const token = jwt.sign({ payload: id }, JWT_SECRET, { expiresIn: '7d' });
+  return token;
+};
+
 module.exports.createUser = (req, res, next) => {
   const {
     email,
@@ -141,11 +146,28 @@ module.exports.updateProfile = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  const { email } = req.body;
+
+  User.findOne({ email })
+    .select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-      res.send({ token });
+      const token = getJwtToken(user._id);
+      res
+        .cookie('jwt', token, {
+          maxage: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({ message: 'Успешная авторизация.' });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ErrorBadRequest('Переданы некорректные данные'));
+      } else if (err.name === 'CastError') {
+        next(new ErrorBadRequest('Переданы некорректные данные'));
+      } else if (err.name === 'Unauthorized') {
+        next(new UnauthorizedError('Неверные данные для входа'));
+      } else {
+        next(err);
+      }
+    });
 };

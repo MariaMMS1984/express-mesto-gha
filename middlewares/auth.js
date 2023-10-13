@@ -5,23 +5,20 @@ const JWT_SECRET = 'secret';
 const UnauthorizedError = require('../errors/autharization');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError({ message: 'Необходима авторизация' });
+  if (!token) {
+    throw new UnauthorizedError('Для выполнения действия необходима авторизация.');
   }
-
-  const token = authorization.replace('Bearer ', '');
 
   let payload;
 
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    throw new UnauthorizedError({ message: 'Необходима авторизация' });
+    throw new UnauthorizedError('Для выполнения действия необходима авторизация.');
   }
 
   req.user = payload;
-
-  return next();
+  next();
 };
