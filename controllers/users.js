@@ -93,13 +93,13 @@ const getUser = (req, res, next) => {
     .catch(next);
 };
 
-const getCurrentUserInfo = (req, res, next) => {
+const getThisUser = (req, res, next) => {
   User.findById(req.user.payload)
     .then((user) => res.send(user))
     .catch(next);
 };
 
-const updateUser = (req, res, next) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user.payload,
@@ -151,7 +151,7 @@ module.exports = {
   login,
   getUsers,
   getUser,
-  getCurrentUserInfo,
-  updateUser,
+  getThisUser,
+  updateProfile,
   updateAvatar,
 };
