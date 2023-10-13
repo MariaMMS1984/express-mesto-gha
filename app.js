@@ -23,12 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signin', login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2),
-  }),
-}), createUser);
+app.post('/signup', createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
 
