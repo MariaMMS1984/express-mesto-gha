@@ -5,6 +5,7 @@ const User = require('../models/user');
 const ErrorBadRequest = require('../errors/incorrect');
 const ErrorNotFound = require('../errors/notfound');
 const UnauthorizedError = require('../errors/autharization');
+const ErrorConflict = require('../errors/repeat');
 
 const JWT_SECRET = 'secret';
 
@@ -38,8 +39,10 @@ module.exports.createUser = (req, res, next) => {
           avatar: user.avatar,
         }))
         .catch((err) => {
-          if (err.name === 'ValidationError') {
-            next(new ErrorBadRequest('Переданы некорректные данные'));
+          if (err.name === 'MongoServerError' || err.code === 11000) {
+            next(new Error('Пользователь с такой почтой уже зарегистрирован.'));
+          } else if (err.name === 'ValidationError') {
+            next(new Error('Переданы некорректные данные'));
           } else {
             next(err);
           }
