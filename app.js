@@ -7,8 +7,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const ErrorNotFound = require('./errors/notfound');
-
 app.use(cookieParser());
 const auth = require('./middlewares/auth');
 
@@ -28,8 +26,18 @@ app.post('/signup', createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
 
-app.use((req, res, next) => {
-  next(new ErrorNotFound('Такой страницы не существует.'));
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
 });
 
 app.listen(PORT, () => {
