@@ -7,7 +7,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
-const { validateCreateUser, validateLogin } = require('./middlewares/validate');
+const { validateCreateUser } = require('./middlewares/validate');
 
 app.use(cookieParser());
 const auth = require('./middlewares/auth');
@@ -23,7 +23,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', validateLogin, login);
+app.post('/signin', login);
 app.post('/signup', validateCreateUser, createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
