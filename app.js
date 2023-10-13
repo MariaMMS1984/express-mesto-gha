@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', validateCreateUser, createUser);
 app.use(auth);
 app.use('/', require('./routes/index'));
 
