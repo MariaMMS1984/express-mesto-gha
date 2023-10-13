@@ -4,6 +4,13 @@ const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 const app = express();
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6517388f76bb1f335ee715d2', // вставьте сюда _id созданного в предыдущем пункте пользователя
+
+  };
+  next();
+});
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
