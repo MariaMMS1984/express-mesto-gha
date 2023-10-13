@@ -5,7 +5,7 @@ const User = require('../models/user');
 const ErrorBadRequest = require('../errors/incorrect');
 const ErrorNotFound = require('../errors/notfound');
 const UnauthorizedError = require('../errors/autharization');
-const ErrorConflict = require('../errors/repeat');
+
 
 const JWT_SECRET = 'secret';
 
