@@ -14,7 +14,9 @@ const getJwtToken = (id) => {
   return token;
 };
 
-module.exports.createUser = (req, res, next) => {
+const SALT_ROUNDS = 10;
+
+const createUser = (req, res, next) => {
   const {
     email,
     password,
@@ -23,7 +25,7 @@ module.exports.createUser = (req, res, next) => {
     avatar,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  bcrypt.hash(password, SALT_ROUNDS)
     .then((hash) => {
       User.create({
         email,
@@ -38,114 +40,20 @@ module.exports.createUser = (req, res, next) => {
           about: user.about,
           avatar: user.avatar,
         }))
-        .catch((err) => {
-          if (err.name === 'MongoServerError' || err.code === 11000) {
+        .catch((error) => {
+          if (error.name === 'MongoServerError' || error.code === 11000) {
             next(new ErrorConflict('Пользователь с такой почтой уже зарегистрирован.'));
-          } else if (err.name === 'ValidationError') {
-            next(new ErrorBadRequest('Переданы некорректные данные'));
+          } else if (error.name === 'ValidationError') {
+            next(new ErrorBadRequest('Переданы неккоректные данные для создания пользователя.'));
           } else {
-            next(err);
+            next(error);
           }
         });
-    });
-};
-
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send(users))
+    })
     .catch(next);
 };
 
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.userid)
-    .then((user) => {
-      if (!user) {
-        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
-      }
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.getThisUser = (req, res, next) => {
-  const userId = req.user.payload;
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
-      }
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  const userId = req.user.payload;
-  User.findByIdAndUpdate(
-    userId,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (!user) {
-        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
-      }
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.updateProfile = (req, res, next) => {
-  const userId = req.user.payload;
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(
-    userId,
-    { name, about },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (!user) {
-        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
-      }
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.login = (req, res, next) => {
+const login = (req, res, next) => {
   const { email } = req.body;
 
   User.findOne({ email })
@@ -159,15 +67,91 @@ module.exports.login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация.' });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'Unauthorized') {
-        next(new UnauthorizedError('Неверные данные для входа'));
+    .catch(() => {
+      next(new UnauthorizedError('Неправильные почта или пароль.'));
+    });
+};
+
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => {
+      if (users.length === 1) {
+        throw new ErrorNotFound('Пользователи не найдены.');
+      }
+      res.send(users);
+    })
+    .catch(next);
+};
+
+const getUser = (req, res, next) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (!user) {
+        next(new ErrorNotFound('Пользователь не найден.'));
+      } else res.send(user);
+    })
+    .catch(next);
+};
+
+const getCurrentUserInfo = (req, res, next) => {
+  User.findById(req.user.payload)
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+const updateUser = (req, res, next) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(
+    req.user.payload,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+      upsert: false,
+    },
+  )
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ErrorBadRequest('Передан некорректный id пользователя.'));
       } else {
-        next(err);
+        next(error);
       }
     });
+};
+
+const updateAvatar = (req, res, next) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(
+    req.user.payload,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .then((user) => {
+      if (!user) {
+        next(new ErrorNotFound('Пользователь не найден.'));
+      } else res.send(user);
+    })
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ErrorBadRequest('Передан некорректный id пользователя.'));
+      } else {
+        next(error);
+      }
+    });
+};
+
+module.exports = {
+  createUser,
+  login,
+  getUsers,
+  getUser,
+  getCurrentUserInfo,
+  updateUser,
+  updateAvatar,
 };
