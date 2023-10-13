@@ -2,10 +2,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const INCOORECT_ERROR_CODE = 400;
-const NOTFOUND_ERROR_CODE = 404;
-const SERVER_ERROR_CODE = 500;
-const AUTHORIZATION_ERROR = 401;
+const ErrorBadRequest = require('../errors/incorrect');
+const ErrorNotFound = require('../errors/notfound');
+const UnauthorizedError = require('../errors/autharization');
+const ErrorConflict = require('../errors/repeat');
+
 const JWT_SECRET = 'secret';
 
 const getJwtToken = (id) => {
@@ -13,7 +14,7 @@ const getJwtToken = (id) => {
   return token;
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email,
     password,
@@ -38,63 +39,63 @@ module.exports.createUser = (req, res) => {
           avatar: user.avatar,
         }))
         .catch((err) => {
-          if (err.name === 'ValidationError') {
-            res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
+          if (err.name === 'MongoServerError' || err.code === 11000) {
+            next(new ErrorConflict('Пользователь с такой почтой уже зарегистрирован.'));
+          } else if (err.name === 'ValidationError') {
+            next(new ErrorBadRequest('Переданы некорректные данные'));
           } else {
-            res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+            next(err);
           }
         });
     });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((error) => {
-      error.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userid)
     .then((user) => {
       if (!user) {
-        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else if (err.name === 'CastError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.getThisUser = (req, res) => {
+module.exports.getThisUser = (req, res, next) => {
   const userId = req.user.payload;
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else if (err.name === 'CastError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user.payload;
   User.findByIdAndUpdate(
@@ -104,22 +105,22 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные аватара пользователя' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else if (err.name === 'CastError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const userId = req.user.payload;
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -129,17 +130,17 @@ module.exports.updateProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(NOTFOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден или был запрошен несуществующий роут' });
+        next(new ErrorNotFound('Пользователь по указанному _id не найден или был запрошен несуществующий роут'));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные профиля пользователя' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else if (err.name === 'CastError') {
-        res.status(INCOORECT_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        next(new ErrorBadRequest('Переданы некорректные данные'));
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
@@ -159,6 +160,6 @@ module.exports.login = (req, res, next) => {
         .send({ message: 'Успешная авторизация.' });
     })
     .catch(() => {
-      next(new AUTHORIZATION_ERROR('Неверные данные для входа'));
+      next(new UnauthorizedError('Неверные данные для входа'));
     });
 };
