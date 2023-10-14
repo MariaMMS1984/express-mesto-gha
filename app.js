@@ -4,24 +4,17 @@ const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6517388f76bb1f335ee715d2', // вставьте сюда _id созданного в предыдущем пункте пользователя
-
-  };
-  next();
-});
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { validateCreateUser, validateLogin } = require('./middlewares/validate');
-
-app.use(cookieParser());
 const auth = require('./middlewares/auth');
 
 const {
   createUser, login,
 } = require('./controllers/users');
+
+app.use(cookieParser());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
