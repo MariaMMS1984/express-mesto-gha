@@ -12,7 +12,7 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.findUser = (req, res, next) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
@@ -30,7 +30,7 @@ module.exports.findUser = (req, res, next) => {
     });
 };
 
-module.exports.getUserById = (req, res, next) => {
+module.exports.getThisUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
