@@ -11,8 +11,8 @@ const {
 } = require('../controllers/users');
 
 users.get('/', getUsers);
-users.get('/me', getThisUser);
-users.get('/:userid', validateUserId, getUser);
+
+
 users.patch('/me', validateUserUpdate, updateProfile);
 users.patch('/me/avatar', validateUserAvatar, updateAvatar);
 
