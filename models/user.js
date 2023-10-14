@@ -5,6 +5,20 @@ const bcrypt = require('bcryptjs');
 const UnauthorizedError = require('../errors/autharization');
 
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: [true, 'Необходима электронная почта.'],
+    unique: true,
+    validate: {
+      validator: (email) => validator.isEmail(email),
+      message: 'Указана неверная почта.',
+    },
+  },
+  password: {
+    type: String,
+    required: [true, 'Необходим пароль.'],
+    select: false,
+  },
   name: {
     type: String,
     minLength: 2,
@@ -21,20 +35,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: /https?:\/\/(www.)?[a-z0-9A-Z\-._~:/?#[\]$&'()*+@,;=]#/,
-  },
-  email: {
-    type: String,
-    required: [true, 'Необходима электронная почта.'],
-    unique: true,
-    validate: {
-      validator: (email) => validator.isEmail(email),
-      message: 'Указана неверная почта.',
-    },
-  },
-  password: {
-    type: String,
-    required: [true, 'Необходим пароль.'],
-    select: false,
   },
 });
 
