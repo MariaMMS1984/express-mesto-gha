@@ -13,6 +13,7 @@ const auth = require('./middlewares/auth');
 const {
   createUser, login,
 } = require('./controllers/users');
+const ErrorNotFound = require('./errors/notfound');
 
 app.use(cookieParser());
 
@@ -42,6 +43,9 @@ app.use((err, req, res, next) => {
     });
 });
 app.use(errors());
+app.use((req, res, next) => {
+  next(new ErrorNotFound('Такой страницы не существует.'));
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
