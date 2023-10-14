@@ -6,7 +6,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { errors } = require('celebrate');
+
 const { validateCreateUser, validateLogin } = require('./middlewares/validate');
 const auth = require('./middlewares/auth');
 
@@ -42,7 +42,7 @@ app.use((err, req, res, next) => {
         : message,
     });
 });
-app.use(errors());
+
 app.use((req, res, next) => {
   next(new ErrorNotFound('Такой страницы не существует.'));
 });

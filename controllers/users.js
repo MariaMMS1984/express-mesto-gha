@@ -14,8 +14,6 @@ const getJwtToken = (id) => {
   return token;
 };
 
-const SALT_ROUNDS = 10;
-
 const createUser = (req, res, next) => {
   const {
     email,
@@ -25,7 +23,7 @@ const createUser = (req, res, next) => {
     avatar,
   } = req.body;
 
-  bcrypt.hash(password, SALT_ROUNDS)
+  bcrypt.hash(password, 10)
     .then((hash) => {
       User.create({
         email,
