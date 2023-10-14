@@ -6,7 +6,6 @@ const validateCreateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().min(1).max(40),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(RegExp),
   }),
