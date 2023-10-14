@@ -1,4 +1,5 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate } = require('celebrate');
+const { Joi } = require('joi');
 
 const RegExp = /https?:\/\/(www.)?[a-z0-9A-Z\-._~:/?#[\]$&'()*+@,;=]#/;
 
