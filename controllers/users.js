@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const UnauthorizedError = require('../errors/autharization');
 
 const ErrorBadRequest = require('../errors/incorrect');
 const ErrorNotFound = require('../errors/notfound');
@@ -52,10 +51,9 @@ const createUser = (req, res, next) => {
 };
 
 const login = (req, res, next) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
-  User.findOne({ email })
-    .select('+password')
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = getJwtToken(user._id);
       res
@@ -65,9 +63,7 @@ const login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация.' });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неправильные почта или пароль.'));
-    });
+    .catch(next);
 };
 
 const getUsers = (req, res, next) => {
