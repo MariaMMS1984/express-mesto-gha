@@ -21,7 +21,7 @@ const validateLogin = celebrate({
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24),
+    userid: Joi.string().alphanum().length(24),
   }),
 });
 
