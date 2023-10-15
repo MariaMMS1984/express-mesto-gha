@@ -54,7 +54,7 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        next(new ErrorNotFound('Карточка по указанному _id не найдена или был запрошен несуществующий роут'));
+        throw new ErrorNotFound('Карточка по указанному _id не найдена или был запрошен несуществующий роут');
       }
       return res.status(200).send(card);
     })
