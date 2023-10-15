@@ -64,7 +64,9 @@ const login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация.' });
     })
-    .catch(next);
+    .catch(() => {
+      next(new UnauthorizedError('Неправильные почта или пароль.'));
+    });
 };
 
 const getUsers = (req, res, next) => {
