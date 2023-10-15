@@ -4,6 +4,7 @@ const User = require('../models/user');
 
 const ErrorBadRequest = require('../errors/incorrect');
 const ErrorNotFound = require('../errors/notfound');
+const UnauthorizedError = require('../errors/autharization');
 const ErrorConflict = require('../errors/repeat');
 
 const JWT_SECRET = 'secret';
@@ -64,12 +65,19 @@ const login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация.' });
     })
-    .catch(next);
+    .catch(() => {
+      next(new UnauthorizedError('Неправильные почта или пароль.'));
+    });
 };
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
+    .then((users) => {
+      if (users.length === 1) {
+        throw new ErrorNotFound('Пользователи не найдены.');
+      }
+      res.send(users);
+    })
     .catch(next);
 };
 
